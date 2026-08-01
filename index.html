@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wszystkiego Najlepszego, Lena!</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: #ff477e;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 5px 15px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        p.wishes {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Stylizacja Prezentu */
+        .gift-container {
+            margin: 20px auto;
+            cursor: pointer;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .gift-container:hover {
+            transform: scale(1.05);
+        }
+
+        .gift-box {
+            position: relative;
+            width: 140px;
+            height: 120px;
+            background: #ff477e;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .gift-ribbon-v {
+            position: absolute;
+            width: 24px;
+            height: 100%;
+            background: #ffbc00;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .gift-ribbon-h {
+            position: absolute;
+            width: 100%;
+            height: 24px;
+            background: #ffbc00;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .gift-lid {
+            position: absolute;
+            width: 156px;
+            height: 35px;
+            background: #ff2a6d;
+            top: -35px;
+            left: -8px;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        .gift-lid::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 100%;
+            background: #ffbc00;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .click-hint {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Sekcja Wideo */
+        .video-container {
+            display: none;
+            margin-top: 25px;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        video {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tło z konfetti */
+        canvas#confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <div class="container">
+        <div class="badge">18 URODZINY! 🔞</div>
+        <h1>Sto Lat, Lena Filipiak! 🎉</h1>
+        
+        <p class="wishes">
+            Oficjalnie wkraczasz w dorosłość! Życzę Ci mnóstwa radości, spełnienia wszystkich marzeń, 
+            niezapomnianych przygód oraz sukcesów we wszystkim, za co się zabierzesz. 
+            <br><br>
+            <strong>Kliknij w prezent poniżej, aby odebrać muzyczną niespodziankę! 👇</strong>
+        </p>
+
+        <div class="gift-container" id="gift" onclick="openGift()">
+            <div class="gift-box">
+                <div class="gift-lid" id="lid"></div>
+                <div class="gift-ribbon-v"></div>
+                <div class="gift-ribbon-h"></div>
+            </div>
+        </div>
+        <p class="click-hint" id="hint">Otwórz prezent 🎁</p>
+
+        <div class="video-container" id="videoWrapper">
+            <video id="birthdayVideo" controls>
+                <!-- Zastąp "film.mp4" ścieżką do swojego pliku wideo -->
+                <source src="film.mp4" type="video/mp4">
+                Twoja przeglądarka nie wspiera odtwarzacza wideo.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        function openGift() {
+            const lid = document.getElementById('lid');
+            const gift = document.getElementById('gift');
+            const hint = document.getElementById('hint');
+            const videoWrapper = document.getElementById('videoWrapper');
+            const video = document.getElementById('birthdayVideo');
+
+            // Animacja otwierania prezentu
+            lid.style.transform = 'translateY(-60px) rotate(-15deg)';
+            lid.style.opacity = '0';
+            
+            setTimeout(() => {
+                gift.style.display = 'none';
+                hint.style.display = 'none';
+                videoWrapper.style.display = 'block';
+                video.play();
+                startConfetti();
+            }, 400);
+        }
+
+        // Prosty efekt Konfetti
+        function startConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#ff477e', '#ffbc00', '#00f5d4', '#7b2cbf', '#00bbf9'];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p) => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
